@@ -8,11 +8,13 @@
         static int count = 0;
         static List<Layer> cave;
         static Dictionary<string, bool> prawoMarcina;
+        static extern bool SetThreadStackGuarantee(ref uint StackSizeInBytes);
         static void Main(string[] args)
         {
             StreamReader streamReader = new StreamReader("in1.txt");
             var fileLine = streamReader.ReadLine();
-
+            
+            uint stackSizeInBytes = 16 * 1024 * 1024;
             string[] fLine = fileLine.Split(' ');
             n = int.Parse(fLine[0]);
             m = int.Parse(fLine[1]);
@@ -48,9 +50,10 @@
                 Console.WriteLine();
             }*/
             //Console.WriteLine(cave[3].lines[4].blocks[4]);
-            Console.WriteLine(chief());
+            //Console.WriteLine(chief());
+            baxton();
         }
-        static int chief()
+        /*static int chief()
         {
             int temp = 0;
             for (int t = 0; t < m; t++)
@@ -67,45 +70,109 @@
             }
             //temp = glebiej(1, 3, 2);
             return temp + 1;
+        }*/
+        static void baxton()
+        {
+            prawoMarcina = new Dictionary<string, bool>();
+            long obj = 0;
+            for (int a = d - 1; a > 0; a--)
+            {
+                for (int t = 0; t < m; t++)
+                {
+                    for (int x = 0; x < n; x++)
+                    {
+                        if (cave[a].lines[t].blocks[x] == 'o' && !prawoMarcina.ContainsKey($"{a},{t},{x}"))
+                        {
+                            //Console.WriteLine($"{a},{x},{t}");
+                            long temp = Up(a, t, x);
+                            if (temp > obj) { obj = temp; }
+                        }
+                    }
+                }
+            }
+
+            Console.WriteLine($"Największa objętość: {obj} ");
         }
 
-        static int glebiej(int i, int j, int k)
+        /*static int glebiej(int i, int j, int k)
         {
-            prawoMarcina.Add($"{i}{j}{k}", true);
-            int temp = i;
-            int temp2 = 0;
-            if (temp == d - 1){ return temp; }
+            prawoMarcina.Add($"{i},{j},{k}", true);
+            int temp = 1;
+            if (temp == d - 1) { return temp; }
             //Console.WriteLine($"Warstwa: {i}, X: {k}, Y: {j}, temp: {temp} , {cave[i].lines[j].blocks[k]}");
-            if (i < d - 1 && !prawoMarcina.ContainsKey($"{i + 1}{j}{k}") && cave[i + 1].lines[j].blocks[k] == 'o')
+            if (i < d - 1 && !prawoMarcina.ContainsKey($"{i + 1},{j},{k}") && cave[i + 1].lines[j].blocks[k] == 'o')
             {
                 temp = glebiej(i + 1, j, k);
             }
-            if(j<m -1 && !prawoMarcina.ContainsKey($"{i}{j+1}{k}") && cave[i].lines[j+1].blocks[k] == 'o') 
-            { 
-                temp2 = glebiej(i, j+1, k);
-                if (temp2 > temp) { temp = temp2; }
-            }
-            
-            if(j>0 && !prawoMarcina.ContainsKey($"{i}{j-1}{k}") && cave[i].lines[j-1].blocks[k] == 'o') 
+            if (i > 0 && !prawoMarcina.ContainsKey($"{i - 1},{j},{k}") && cave[i - 1].lines[j].blocks[k] == 'o')
             {
-                temp2 = glebiej(i, j-1, k);
-                if (temp2 > temp) { temp = temp2; }
+                temp += Up(i - 1, j, k);
             }
-            
-            if (k < n -1 && !prawoMarcina.ContainsKey($"{i}{j}{k+1}") && cave[i].lines[j].blocks[k+1] == 'o') 
-            { 
-                temp2 = glebiej(i, j, k+1);
-                if (temp2 > temp) { temp = temp2; }
+            if (j < m - 1 && !prawoMarcina.ContainsKey($"{i},{j + 1},{k}") && cave[i].lines[j + 1].blocks[k] == 'o')
+            {
+                temp += glebiej(i, j + 1, k);
+                //if (temp2 > temp) { temp = temp2; }
             }
-            
-            if (k > 0 && !prawoMarcina.ContainsKey($"{i}{j}{k-1}") && cave[i].lines[j].blocks[k-1] == 'o') 
-            { 
-                temp2 = glebiej(i, j, k-1);
-                if (temp2 > temp) { temp = temp2; }
+
+            if (j > 0 && !prawoMarcina.ContainsKey($"{i},{j - 1},{k}") && cave[i].lines[j - 1].blocks[k] == 'o')
+            {
+                temp += glebiej(i, j - 1, k);
+                //if (temp2 > temp) { temp = temp2; }
+            }
+
+            if (k < n - 1 && !prawoMarcina.ContainsKey($"{i},{j},{k + 1}") && cave[i].lines[j].blocks[k + 1] == 'o')
+            {
+                temp += glebiej(i, j, k + 1);
+                //if (temp2 > temp) { temp = temp2; }
+            }
+
+            if (k > 0 && !prawoMarcina.ContainsKey($"{i},{j},{k - 1}") && cave[i].lines[j].blocks[k - 1] == 'o')
+            {
+                temp += glebiej(i, j, k - 1);
+                //if (temp2 > temp) { temp = temp2; }
+            }
+            return temp;
+        }*/
+        static long Up(int i, int j, int k)
+        {
+            prawoMarcina.Add($"{i},{j},{k}", true);
+            long temp = 1;
+            //Console.WriteLine($"Warstwa: {i}, X: {k}, Y: {j}, temp: {temp} , {cave[i].lines[j].blocks[k]}");
+            if (i > 0 && !prawoMarcina.ContainsKey($"{i - 1},{j},{k}") && cave[i - 1].lines[j].blocks[k] == 'o')
+            {
+                temp += Up(i - 1, j, k);
+            }
+            if (i < d - 1 && !prawoMarcina.ContainsKey($"{i + 1},{j},{k}") && cave[i + 1].lines[j].blocks[k] == 'o')
+            {
+                temp += Up(i + 1, j, k);
+            }
+            if (j < m - 1 && !prawoMarcina.ContainsKey($"{i},{j + 1},{k}") && cave[i].lines[j + 1].blocks[k] == 'o')
+            {
+                temp += Up(i, j + 1, k);
+                //if (temp2 > temp) { temp = temp2; }
+            }
+
+            if (j > 0 && !prawoMarcina.ContainsKey($"{i},{j - 1},{k}") && cave[i].lines[j - 1].blocks[k] == 'o')
+            {
+                temp += Up(i, j - 1, k);
+                //if (temp2 > temp) { temp = temp2; }
+            }
+
+            if (k < n - 1 && !prawoMarcina.ContainsKey($"{i},{j},{k + 1}") && cave[i].lines[j].blocks[k + 1] == 'o')
+            {
+                temp += Up(i, j, k + 1);
+                //if (temp2 > temp) { temp = temp2; }
+            }
+
+            if (k > 0 && !prawoMarcina.ContainsKey($"{i},{j},{k - 1}") && cave[i].lines[j].blocks[k - 1] == 'o')
+            {
+                temp += Up(i, j, k - 1);
+                //if (temp2 > temp) { temp = temp2; }
             }
             return temp;
         }
     }
+
 
     public class Layer
     {
