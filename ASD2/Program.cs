@@ -6,19 +6,17 @@ namespace ASD2
         static int n;
         static int m;
         static int d;
-
+        static bool isSurface;
         static int count = 0;
         static List<Layer> cave;
         static Dictionary<string, bool> visitedCaves;
-        static bool isSurface;
-        //static extern bool SetThreadStackGuarantee(ref uint StackSizeInBytes);
+
         static void Main(string[] args)
         {
 
-            StreamReader streamReader = new StreamReader("maly2.txt");
+            StreamReader streamReader = new StreamReader("maly1.txt");
             var fileLine = streamReader.ReadLine();
 
-            //uint stackSizeInBytes = 16 * 1024 * 1024;
             string[] fLine = fileLine.Split(' ');
             n = int.Parse(fLine[0]);
             m = int.Parse(fLine[1]);
@@ -40,7 +38,6 @@ namespace ASD2
                 cave.Add(layer);
             }
             streamReader.Close();
-            Console.WriteLine($"{n}, {m}, {d}");
 
             Thread thread = new Thread(caveAnalysis, 8 * 1024 * 1024);
             Stopwatch stopwatch = new Stopwatch();
@@ -52,6 +49,7 @@ namespace ASD2
 
         static void caveAnalysis()
         {
+
             int isolated = 0;
             int maxDepth = 0;
             visitedCaves = new Dictionary<string, bool>();
@@ -67,13 +65,13 @@ namespace ASD2
                             isSurface = false;
                             long temp = Up(a, t, x);
                             if (temp > volume) { volume = temp; }
-                            if (!isSurface) { isolated++; } else if (a > maxDepth) { maxDepth = a; }
+                            if (!isSurface) { isolated++; } else if (a + 1 > maxDepth) { maxDepth = a + 1; }
                         }
                     }
                 }
             }
 
-            Console.WriteLine($"Największa objętość: {volume}, Jaskinie izolowane: {isolated}, Największa głębokość: {maxDepth + 1}");
+            Console.WriteLine($"Największa głębokość: {maxDepth}, Największa objętość: {volume}, Jaskinie izolowane: {isolated}");
         }
 
         static long Up(int i, int j, int k)
