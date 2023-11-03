@@ -14,7 +14,7 @@ namespace ASD2
         static void Main(string[] args)
         {
 
-            StreamReader streamReader = new StreamReader("maly1.txt");
+            StreamReader streamReader = new StreamReader("in1.txt");
             var fileLine = streamReader.ReadLine();
 
             string[] fLine = fileLine.Split(' ');
@@ -40,16 +40,13 @@ namespace ASD2
             streamReader.Close();
 
             Thread thread = new Thread(caveAnalysis, 8 * 1024 * 1024);
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             thread.Start();
-            stopwatch.Stop();
-            Console.WriteLine(stopwatch.Elapsed);
         }
 
         static void caveAnalysis()
         {
-
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             int isolated = 0;
             int maxDepth = 0;
             visitedCaves = new Dictionary<string, bool>();
@@ -70,8 +67,8 @@ namespace ASD2
                     }
                 }
             }
-
-            Console.WriteLine($"Największa głębokość: {maxDepth}, Największa objętość: {volume}, Jaskinie izolowane: {isolated}");
+            stopwatch.Stop();
+            Console.WriteLine($"Największa głębokość: {maxDepth}, Największa objętość: {volume}, Jaskinie izolowane: {isolated} Czas: {stopwatch.Elapsed}");
         }
 
         static long Up(int i, int j, int k)
